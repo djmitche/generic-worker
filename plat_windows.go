@@ -425,17 +425,21 @@ func install(arguments map[string]interface{}) (err error) {
 		nssm := convertNilToEmptyString(arguments["--nssm"])
 		serviceName := convertNilToEmptyString(arguments["--service-name"])
 		configureForAws := arguments["--configure-for-aws"].(bool)
+		configureForGcp := arguments["--configure-for-gcp"].(bool)
 		dir := filepath.Dir(exePath)
-		return deployService(configFile, nssm, serviceName, exePath, dir, configureForAws)
+		return deployService(configFile, nssm, serviceName, exePath, dir, configureForAws, configureForGcp)
 	}
 	log.Fatal("Unknown install target - only 'service' is allowed")
 	return nil
 }
 
-func CreateRunGenericWorkerBatScript(batScriptFilePath string, configureForAws bool) error {
+func CreateRunGenericWorkerBatScript(batScriptFilePath string, configureForAws bool, configureForGcp bool) error {
 	runCommand := `.\generic-worker.exe run`
 	if configureForAws {
 		runCommand += ` --configure-for-aws`
+	}
+	if configureForGcp {
+		runCommand += ` --configure-for-gcp`
 	}
 	runCommand += ` > .\generic-worker.log 2>&1`
 	batScriptContents := []byte(strings.Join([]string{
